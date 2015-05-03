@@ -1,0 +1,100 @@
+<link rel='import' href='../polymer/polymer.html'>
+<link rel="stylesheet" href="vendor/prismjs/prism.css">
+<script src="vendor/prismjs/prism.js"></script>
+
+<dom-module id="code-example">
+  <style>
+  :host {
+    display: -webkit-flex;
+    display: flex;
+    margin: 3em 0;
+  }
+
+  .demo-wrapper {
+    min-width: 40%;
+  }
+
+  .code {
+    white-space: pre;
+    font-family: Source Code Pro, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.3;
+    padding-left: 2em;
+    width: 100%;
+  }
+
+  .code code {
+    max-height: 20em;
+  }
+
+  @media screen and (max-width: 750px) {
+    :host {
+      -webkit-flex-direction: column;
+      flex-direction: column;
+    }
+
+    .code {
+      padding-left: 0;
+      padding-top: 3em;
+    }
+  }
+  </style>
+  <template>
+    <div class="demo-wrapper">
+      <content select="[demo]"></content>
+    </div>
+    <div class="code"></div>
+  </template>
+</dom-module>
+
+<script>
+CodeExample = Polymer({
+
+  is: "code-example",
+
+  ready: function() {
+    if(!window.xCodeExampleIdCount)
+      window.xCodeExampleIdCount = 0;
+
+    var code = Polymer.dom(this).node.querySelector(".code");
+    var demoComponent = Polymer.dom(this).node.querySelector(".demo-wrapper").querySelector("[demo]");
+
+    if(demoComponent.getAttribute("hidden") == null) {
+      code.innerHTML = "<code class='language-markup'></code>"
+      code.firstChild.textContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.replace(/^\s+/,"").replace(/\s+$/,"").replace(" demo=\"\"","");
+      Prism.highlightElement(code.firstChild);
+    }
+
+    demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
+
+    // Get any script code
+    for(var i=0; i < Polymer.dom(this).node.lightChildren.length; i++) {
+      var c = Polymer.dom(this).node.lightChildren[i];
+      if(c.nodeName == "CODE") {
+        var script = document.createElement("script");
+        var scriptContent = c.innerHTML;
+
+        if(c.getAttribute("hidden") == null) {
+          var scriptCode = document.createElement("code");
+          scriptCode.className = "language-javascript";
+          scriptCode.textContent = scriptContent.replace(/^\s+/,"").replace(/\s+$/,"")
+          code.appendChild(scriptCode);
+          Prism.highlightElement(scriptCode);
+        }
+
+        var demoVar = c.getAttribute("demo-var");
+        if(demoVar) {
+          scriptContent = "var " + demoVar + " = document.getElementById('" + demoComponent.id + "');\n" + scriptContent;
+        }
+        script.innerHTML = scriptContent;
+
+        // TODO this is probably not the correct way
+        setTimeout(function() {
+          document.body.appendChild(this);
+        }.bind(script), 0);
+      }
+    }
+  }
+
+});
+</script>
