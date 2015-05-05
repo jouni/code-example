@@ -25,6 +25,7 @@
 
   .code code {
     max-height: 20em;
+    height: auto;
   }
 
   @media screen and (max-width: 750px) {
@@ -63,6 +64,7 @@ CodeExample = Polymer({
       code.innerHTML = "<code class='language-markup'></code>"
       code.firstChild.textContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.replace(/^\s+/,"").replace(/\s+$/,"").replace(" demo=\"\"","");
       Prism.highlightElement(code.firstChild);
+      Polymer.StyleTransformer.element(code.firstChild, this.is);
     }
 
     demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
@@ -80,6 +82,7 @@ CodeExample = Polymer({
           scriptCode.textContent = scriptContent.replace(/^\s+/,"").replace(/\s+$/,"")
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
+          Polymer.StyleTransformer.element(scriptCode, this.is);
         }
 
         var demoVar = c.getAttribute("demo-var");
