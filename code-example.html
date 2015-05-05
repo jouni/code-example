@@ -57,14 +57,19 @@ CodeExample = Polymer({
     if(!window.xCodeExampleIdCount)
       window.xCodeExampleIdCount = 0;
 
+    function unIdent(h) {
+      var spaces = h.replace(/^[^\n]*\n*(\s+)[\s\S]*/, '$1');
+      return h.replace(/\t/g, "  ").replace(/\s+$/mg, "").replace(new RegExp("^" + spaces, "mg"), "");
+    }
+
     var code = Polymer.dom(this).node.querySelector(".code");
     var demoComponent = Polymer.dom(this).node.querySelector(".demo-wrapper").querySelector("[demo]");
 
     if(demoComponent.getAttribute("hidden") == null) {
       code.innerHTML = "<code class='language-markup'></code>"
-      code.firstChild.textContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.replace(/^\s+/,"").replace(/\s+$/,"").replace(" demo=\"\"","");
+      var htmlContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.toString();
+      code.firstChild.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
       Prism.highlightElement(code.firstChild);
-      Polymer.StyleTransformer.element(code.firstChild, this.is);
     }
 
     demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
@@ -79,10 +84,9 @@ CodeExample = Polymer({
         if(c.getAttribute("hidden") == null) {
           var scriptCode = document.createElement("code");
           scriptCode.className = "language-javascript";
-          scriptCode.textContent = scriptContent.replace(/^\s+/,"").replace(/\s+$/,"")
+          scriptCode.textContent = unIdent(scriptContent);
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
-          Polymer.StyleTransformer.element(scriptCode, this.is);
         }
 
         var demoVar = c.getAttribute("demo-var");
