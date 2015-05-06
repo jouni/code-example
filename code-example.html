@@ -81,7 +81,7 @@ CodeExample = Polymer({
       var c = Polymer.dom(this).node.lightChildren[i];
       if(c.nodeName == "CODE") {
         var script = document.createElement("script");
-        var scriptContent = c.innerHTML;
+        var scriptContent = c.textContent;
 
         if(c.getAttribute("hidden") == null) {
           var scriptCode = document.createElement("code");
