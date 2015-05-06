@@ -75,6 +75,7 @@ CodeExample = Polymer({
       var htmlContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.toString();
       code.firstChild.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
       Prism.highlightElement(code.firstChild);
+      Polymer.StyleTransformer.element(code.firstChild, this.is);
     }
 
     demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
@@ -92,6 +93,7 @@ CodeExample = Polymer({
           scriptCode.textContent = unIdent(scriptContent);
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
+          Polymer.StyleTransformer.element(scriptCode, this.is);
         }
 
         var demoVar = c.getAttribute("demo-var");
