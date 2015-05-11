@@ -77,32 +77,39 @@ CodeExample = Polymer({
     demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
 
     // Get any script code
+    var script = document.createElement("script");
+    var demoVar, scriptContent = '';
     for(var i=0; i < Polymer.dom(this).node.lightChildren.length; i++) {
       var c = Polymer.dom(this).node.lightChildren[i];
       if(c.nodeName == "CODE") {
-        var script = document.createElement("script");
-        var scriptContent = c.textContent;
-
+        // Use the same demo-var for all code blocks
+        demoVar = demoVar || c.getAttribute("demo-var");
+        // Join all code blocks
+        scriptContent += c.textContent;
+        // Only no hidden code blocks are shown in the page
         if(c.getAttribute("hidden") == null) {
           var scriptCode = document.createElement("code");
           scriptCode.className = "language-javascript";
-          scriptCode.textContent = unIdent(scriptContent);
+          scriptCode.textContent = unIdent(c.textContent);
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
           Polymer.StyleTransformer.element(scriptCode, this.is);
         }
 
-        var demoVar = c.getAttribute("demo-var");
-        if(demoVar) {
-          scriptContent = "var " + demoVar + " = document.getElementById('" + demoComponent.id + "');\n" + scriptContent;
-        }
-        script.innerHTML = scriptContent;
-
-        // TODO this is probably not the correct way
-        setTimeout(function() {
-          document.body.appendChild(this);
-        }.bind(script), 0);
       }
+    }
+    if (scriptContent) {
+      // Wrap the code in a function to avoid sharing the scope.
+      scriptContent =
+        "(function(" + (demoVar ? demoVar : 'demo') +  "){" +
+          scriptContent +
+        "}(document.getElementById('" + demoComponent.id + "')))";
+
+      script.text = scriptContent;
+      // Delay the execution of the script, so as the component is ready
+      setTimeout(function() {
+        document.head.appendChild(script);
+      }, 0);
     }
   }
 
