@@ -79,8 +79,8 @@ CodeExample = Polymer({
     // Get any script code
     var script = document.createElement("script");
     var demoVar, scriptContent = '';
-    for(var i=0; i < Polymer.dom(this).node.lightChildren.length; i++) {
-      var c = Polymer.dom(this).node.lightChildren[i];
+    for(var i=0; i < Polymer.dom(this).childNodes.length; i++) {
+      var c = Polymer.dom(this).childNodes[i];
       if(c.nodeName == "CODE") {
         // Use the same demo-var for all code blocks
         demoVar = demoVar || c.getAttribute("demo-var");
