@@ -14,6 +14,11 @@
     min-width: 40%;
   }
 
+  :host > .code {
+    white-space: normal;
+    text-align: right;
+  }
+
   .code {
     white-space: pre;
     font-family: Source Code Pro, Consolas, monospace;
@@ -22,6 +27,29 @@
     padding-left: 2em;
     width: 100%;
     overflow: hidden;
+  }
+
+  .source {
+    display: none;
+    max-height: none !important;
+  }
+  :host(.source-visible) code {
+    display: none;
+  }
+  :host(.source-visible) code.source {
+    display: block;
+  }
+  :host(:not([source])) .source-toggle {
+    display: none;
+  }
+  .source-toggle {
+    cursor: pointer;
+  }
+  .source-toggle:before {
+    content: "Show full source";
+  }
+  :host(.source-visible) .source-toggle:before {
+    content: "Hide full source";
   }
 
   .code code {
@@ -45,7 +73,10 @@
     <div class="demo-wrapper">
       <content select="[demo]"></content>
     </div>
-    <div class="code"></div>
+    <div class="code">
+      <a class="source-toggle" on-click="toggleSourceVisible"></a>
+    </div>
+
   </template>
 </dom-module>
 
@@ -53,6 +84,10 @@
 CodeExample = Polymer({
 
   is: "code-example",
+
+  toggleSourceVisible: function(){
+    this.toggleClass("source-visible");
+  },
 
   ready: function() {
     if(!window.xCodeExampleIdCount)
@@ -63,15 +98,24 @@ CodeExample = Polymer({
       return h.replace(/\t/g, "  ").replace(/\s+$/mg, "").replace(new RegExp("^" + spaces, "mg"), "");
     }
 
-    var code = Polymer.dom(this).node.querySelector(".code");
-    var demoComponent = Polymer.dom(this).node.querySelector(".demo-wrapper").querySelector("[demo]");
+    function parseCode(h) {
+      var regex = /\/\/\s?code([.\s\S]*)\/\/\s?end-code/m;
+      var result = regex.exec(h);
+      return result ? result[1] : h;
+    }
+
+    var lightDomHTML = unIdent(Polymer.dom(this).innerHTML);
+    var code = Polymer.dom(this.root).querySelector(".code");
+    var demoComponent = Polymer.dom(this.root).querySelector(".demo-wrapper").querySelector("[demo]");
 
     if(demoComponent.getAttribute("hidden") == null) {
-      code.innerHTML = "<code class='language-markup'></code>"
-      var htmlContent = Polymer.dom(this).node.querySelector(".demo-wrapper").innerHTML.toString();
-      code.firstChild.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
-      Prism.highlightElement(code.firstChild);
-      Polymer.StyleTransformer.element(code.firstChild, this.is);
+      var htmlContent = Polymer.dom(this.root).querySelector(".demo-wrapper").innerHTML.toString();
+      var demoCode = document.createElement("code");
+      demoCode.className = "language-markup";
+      demoCode.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
+      code.appendChild(demoCode);
+      Prism.highlightElement(demoCode);
+      Polymer.StyleTransformer.element(demoCode, this.is);
     }
 
     demoComponent.id = "demo_" + window.xCodeExampleIdCount++;
@@ -90,7 +134,7 @@ CodeExample = Polymer({
         if(c.getAttribute("hidden") == null) {
           var scriptCode = document.createElement("code");
           scriptCode.className = "language-javascript";
-          scriptCode.textContent = unIdent(c.textContent);
+          scriptCode.textContent = unIdent(parseCode(c.textContent));
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
           Polymer.StyleTransformer.element(scriptCode, this.is);
@@ -98,6 +142,24 @@ CodeExample = Polymer({
 
       }
     }
+
+    var sourceContent = lightDomHTML.replace(" demo=\"\"","")
+      .replace(" hidden=\"\"","").replace(/<(\/?)code/g,"<$1script")
+      .replace(/ demo-var=\".*\"/,"");
+    var source = document.createElement("code");
+    this.toggleClass("source", true, source);
+    this.toggleClass("language-markup", true, source);
+
+    var fullContent = "<!doctype html>\n<html>\n\n";
+    if (window.xCodeExampleSourceHead) {
+      fullContent+="<head>\n" + window.xCodeExampleSourceHead + "</head>\n\n";
+    }
+    fullContent+="<body>"+ sourceContent + "\n</body>\n\n</html>";
+    source.textContent = fullContent;
+    code.appendChild(source);
+    Prism.highlightElement(source);
+    Polymer.StyleTransformer.element(source, this.is);
+
     if (scriptContent) {
       // Wrap the code in a function to avoid sharing the scope.
       scriptContent =
