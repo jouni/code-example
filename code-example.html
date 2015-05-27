@@ -137,8 +137,9 @@ CodeExample = Polymer({
       var copyButton = document.createElement("a");
       copyButton.href = "javascript:void(0);";
       copyButton.setAttribute("data-clipboard-target", targetId);
-      copyButton.innerText = "copy";
+      copyButton.textContent = "copy";
       copyButton.classList.add("copy");
+      copyButton.title = "Copy to clipboard";
       code.appendChild(copyButton);
       Polymer.StyleTransformer.element(copyButton, this.is);
       new ZeroClipboard( copyButton );
