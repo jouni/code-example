@@ -32,7 +32,7 @@
   }
 
   .source {
-    display: none;
+    display: none !important;
     max-height: none !important;
   }
   :host(.source-visible) code, :host(.source-visible) .copy {
@@ -68,10 +68,14 @@
     border-left: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0 0.3em 0 0.3em;
-    position: relative;
-    top: 18px;
-    z-index: 1;
     padding: 3px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    top: 1px;
+    right: 1px;
+    transform: translatey(100%);
+    -webkit-transform: translatey(100%);
   }
 
   @media screen and (max-width: 750px) {
