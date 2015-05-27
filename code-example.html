@@ -144,8 +144,8 @@ CodeExample = Polymer({
     }
 
     var sourceContent = lightDomHTML.replace(" demo=\"\"","")
-      .replace(" hidden=\"\"","").replace(/<(\/?)code/g,"<$1script")
-      .replace(/ demo-var=\".*\"/,"")
+      .replace(/ hidden=\"\"/g,"").replace(/<(\/?)code/g,"<$1script")
+      .replace(/ demo-var=\".*\"/g,"")
       .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&");
     var source = document.createElement("code");
     this.toggleClass("source", true, source);
