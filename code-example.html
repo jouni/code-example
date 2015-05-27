@@ -28,10 +28,11 @@
     padding-left: 2em;
     width: 100%;
     overflow: hidden;
+    position: relative;
   }
 
   .source {
-    display: none;
+    display: none !important;
     max-height: none !important;
   }
   :host(.source-visible) code, :host(.source-visible) .copy {
@@ -41,14 +42,15 @@
     display: block;
   }
   :host(.source-visible) .copy.source {
-    display: inline;
+    display: inline-block;
   }
   :host(:not([source])) .source-toggle {
     display: none;
   }
   .source-toggle {
     cursor: pointer;
-    margin-right: -40px;
+    position: absolute;
+    right: 0;
   }
   .source-toggle:before {
     content: "Show full source";
@@ -65,11 +67,15 @@
   .copy {
     border-left: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom-left-radius: 6px;
-    position: relative;
-    top: 18px;
-    z-index: 1;
+    border-radius: 0 0.3em 0 0.3em;
     padding: 3px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    top: 1px;
+    right: 1px;
+    transform: translatey(100%);
+    -webkit-transform: translatey(100%);
   }
 
   a.copy {
