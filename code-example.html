@@ -1,6 +1,7 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel="stylesheet" href="vendor/prismjs/prism.css">
 <script src="vendor/prismjs/prism.js"></script>
+<script src="../zeroclipboard/dist/ZeroClipboard.js"></script>
 
 <dom-module id="code-example">
   <style>
@@ -33,17 +34,21 @@
     display: none;
     max-height: none !important;
   }
-  :host(.source-visible) code {
+  :host(.source-visible) code, :host(.source-visible) .copy {
     display: none;
   }
   :host(.source-visible) code.source {
     display: block;
+  }
+  :host(.source-visible) .copy.source {
+    display: inline;
   }
   :host(:not([source])) .source-toggle {
     display: none;
   }
   .source-toggle {
     cursor: pointer;
+    margin-right: -40px;
   }
   .source-toggle:before {
     content: "Show full source";
@@ -55,6 +60,16 @@
   .code code {
     max-height: 20em;
     height: auto;
+  }
+
+  .copy {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom-left-radius: 6px;
+    position: relative;
+    top: 18px;
+    z-index: 1;
+    padding: 3px;
   }
 
   @media screen and (max-width: 750px) {
@@ -104,6 +119,18 @@ CodeExample = Polymer({
       return result ? result[1] : h;
     }
 
+    function addCopyButton(targetId) {
+      var copyButton = document.createElement("a");
+      copyButton.href = "javascript:void(0);";
+      copyButton.setAttribute("data-clipboard-target", targetId);
+      copyButton.innerText = "copy";
+      copyButton.classList.add("copy");
+      code.appendChild(copyButton);
+      Polymer.StyleTransformer.element(copyButton, this.is);
+      new ZeroClipboard( copyButton );
+      return copyButton;
+    }
+
     var lightDomHTML = unIdent(Polymer.dom(this).innerHTML);
     var code = Polymer.dom(this.root).querySelector(".code");
     var demoComponent = Polymer.dom(this.root).querySelector(".demo-wrapper").querySelector("[demo]");
@@ -111,8 +138,10 @@ CodeExample = Polymer({
     if(demoComponent.getAttribute("hidden") == null) {
       var htmlContent = Polymer.dom(this.root).querySelector(".demo-wrapper").innerHTML.toString();
       var demoCode = document.createElement("code");
+      demoCode.id = "code_" + window.xCodeExampleIdCount;
       demoCode.className = "language-markup";
       demoCode.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
+      addCopyButton.call(this, demoCode.id);
       code.appendChild(demoCode);
       Prism.highlightElement(demoCode);
       Polymer.StyleTransformer.element(demoCode, this.is);
@@ -133,8 +162,10 @@ CodeExample = Polymer({
         // Only no hidden code blocks are shown in the page
         if(c.getAttribute("hidden") == null) {
           var scriptCode = document.createElement("code");
+          scriptCode.id = "code_" + window.xCodeExampleIdCount + "_js" + i;
           scriptCode.className = "language-javascript";
           scriptCode.textContent = unIdent(parseCode(c.textContent));
+          addCopyButton.call(this, scriptCode.id);
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
           Polymer.StyleTransformer.element(scriptCode, this.is);
@@ -157,6 +188,9 @@ CodeExample = Polymer({
     }
     fullContent+="<body>"+ sourceContent + "\n</body>\n\n</html>";
     source.textContent = fullContent;
+    source.id = "code_" + window.xCodeExampleIdCount + "s";
+    var button = addCopyButton.call(this, source.id);
+    button.classList.add("source");
     code.appendChild(source);
     Prism.highlightElement(source);
     Polymer.StyleTransformer.element(source, this.is);
