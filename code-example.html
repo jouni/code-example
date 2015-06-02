@@ -169,6 +169,9 @@ CodeExample = Polymer({
     var demoVar, scriptContent = '';
     for(var i=0; i < Polymer.dom(this).childNodes.length; i++) {
       var c = Polymer.dom(this).childNodes[i];
+      if(c.nodeName == "PRE" && c.firstElementChild && c.firstElementChild.nodeName == "CODE") {
+        c = c.children[0];
+      }
       if(c.nodeName == "CODE") {
         // Use the same demo-var for all code blocks
         demoVar = demoVar || c.getAttribute("demo-var");
