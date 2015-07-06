@@ -59,6 +59,33 @@
     content: "Hide full source";
   }
 
+  .source {
+    display: none;
+    max-height: none !important;
+  }
+  :host(.source-visible) code, :host(.source-visible) .copy {
+    display: none;
+  }
+  :host(.source-visible) code.source {
+    display: block;
+  }
+  :host(.source-visible) .copy.source {
+    display: inline;
+  }
+  :host(:not([source])) .source-toggle {
+    display: none;
+  }
+  .source-toggle {
+    cursor: pointer;
+    margin-right: -40px;
+  }
+  .source-toggle:before {
+    content: "Show full source";
+  }
+  :host(.source-visible) .source-toggle:before {
+    content: "Hide full source";
+  }
+
   .code code {
     max-height: 20em;
     height: auto;
