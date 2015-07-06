@@ -1,6 +1,6 @@
 {
   "name": "code-example",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "homepage": "https://github.com/jounik/code-example",
   "authors": [
     "Jouni Koivuviita <jouni@jouni.me>"
@@ -21,7 +21,7 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#~v0.9.2",
+    "polymer": "Polymer/polymer#~v1.0.5",
     "zeroclipboard": "zeroclipboard/zeroclipboard#~2.2.0"
   }
 }

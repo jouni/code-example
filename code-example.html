@@ -100,7 +100,7 @@
   </style>
   <template>
     <div class="demo-wrapper">
-      <content select="[demo]"></content>
+      <content select=":not(code)"></content>
     </div>
     <div class="code">
       <a class="source-toggle" on-click="toggleSourceVisible"></a>
@@ -118,14 +118,36 @@ CodeExample = Polymer({
     this.toggleClass("source-visible");
   },
 
-  ready: function() {
+  _unIndent: function(str, ignoreFirstLine) {
+    var spaces = str.replace(/^[^\n]*\n*(\s+)[\s\S]*/, '$1');
+
+    if(ignoreFirstLine) {
+      spaces = str.match(/^(\s+)[\s\S]*$/m, '$1');
+      if(spaces && spaces[1]) {
+        spaces = spaces[1].substring(2);
+      }
+    }
+
+    return str.replace(/\t/g, "  ").replace(/\s{2,}$/mg, "").replace(new RegExp("^" + spaces, "mg"), "");
+  },
+
+  created: function() {
+    // Gather lightDOM strings before any components are initialized
+    this._lightDomHTML = this._unIndent(this.innerHTML);
+
+    this._demoHtmlContent = "";
+    var demos = this.root.querySelectorAll("[demo]:not([hidden])");
+    for(var i = 0; i < demos.length; i++) {
+      this._demoHtmlContent += demos[i].outerHTML;
+    }
+    this._demoHtmlContent = this._demoHtmlContent.replace(/ demo=\"\"/g, "");
+
+    this._demoHtmlContent = this._unIndent(this._demoHtmlContent, true);
+  },
+
+  attached: function() {
     if(!window.xCodeExampleIdCount)
       window.xCodeExampleIdCount = 0;
-
-    function unIdent(h) {
-      var spaces = h.replace(/^[^\n]*\n*(\s+)[\s\S]*/, '$1');
-      return h.replace(/\t/g, "  ").replace(/\s+$/mg, "").replace(new RegExp("^" + spaces, "mg"), "");
-    }
 
     function parseCode(h) {
       var regex = /\/\/\s?code([.\s\S]*)\/\/\s?end-code/m;
@@ -142,20 +164,18 @@ CodeExample = Polymer({
       copyButton.title = "Copy to clipboard";
       code.appendChild(copyButton);
       Polymer.StyleTransformer.element(copyButton, this.is);
-      new ZeroClipboard( copyButton );
+      new ZeroClipboard(copyButton);
       return copyButton;
     }
 
-    var lightDomHTML = unIdent(Polymer.dom(this).innerHTML);
     var code = Polymer.dom(this.root).querySelector(".code");
     var demoComponent = Polymer.dom(this.root).querySelector(".demo-wrapper").querySelector("[demo]");
 
-    if(demoComponent.getAttribute("hidden") == null) {
-      var htmlContent = Polymer.dom(this.root).querySelector(".demo-wrapper").innerHTML.toString();
+    if(this._demoHtmlContent) {
       var demoCode = document.createElement("code");
       demoCode.id = "code_" + window.xCodeExampleIdCount;
       demoCode.className = "language-markup";
-      demoCode.textContent = unIdent(htmlContent).replace(" demo=\"\"","");
+      demoCode.textContent = this._demoHtmlContent;
       addCopyButton.call(this, demoCode.id);
       code.appendChild(demoCode);
       Prism.highlightElement(demoCode);
@@ -179,7 +199,7 @@ CodeExample = Polymer({
           var scriptCode = document.createElement("code");
           scriptCode.id = "code_" + window.xCodeExampleIdCount + "_js" + i;
           scriptCode.className = "language-javascript";
-          scriptCode.textContent = unIdent(parseCode(c.textContent));
+          scriptCode.textContent = this._unIndent(parseCode(c.textContent));
           addCopyButton.call(this, scriptCode.id);
           code.appendChild(scriptCode);
           Prism.highlightElement(scriptCode);
@@ -189,10 +209,13 @@ CodeExample = Polymer({
       }
     }
 
-    var sourceContent = lightDomHTML.replace(" demo=\"\"","")
-      .replace(/ hidden=\"\"/g,"").replace(/<(\/?)code/g,"<$1script")
-      .replace(/ demo-var=\".*\"/g,"")
-      .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&");
+    var sourceContent = this._lightDomHTML.replace(/ demo=\"\"/g,"")
+      .replace(/ hidden=\"\"/g, "")
+      .replace(/<(\/?)code/g, "<$1script")
+      .replace(/ demo-var=\".*\"/g, "")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
     var source = document.createElement("code");
     this.toggleClass("source", true, source);
     this.toggleClass("language-markup", true, source);
