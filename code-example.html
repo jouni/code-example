@@ -242,9 +242,9 @@ CodeExample = Polymer({
 
       script.text = scriptContent;
       // Delay the execution of the script, so as the component is ready
-      setTimeout(function() {
+      HTMLImports.whenReady = function(done) {
         document.head.appendChild(script);
-      }, 0);
+      }
     }
   }
 
