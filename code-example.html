@@ -1,7 +1,7 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel="stylesheet" href="vendor/prismjs/prism.css">
 <script src="vendor/prismjs/prism.js"></script>
-<script src="../zeroclipboard/dist/ZeroClipboard.js"></script>
+<script src="../clipboard/dist/clipboard.min.js"></script>
 
 <dom-module id="code-example">
   <style>
@@ -158,13 +158,13 @@ CodeExample = Polymer({
     function addCopyButton(targetId) {
       var copyButton = document.createElement("a");
       copyButton.href = "javascript:void(0);";
-      copyButton.setAttribute("data-clipboard-target", targetId);
+      copyButton.setAttribute("data-clipboard-target", '#' + targetId);
       copyButton.textContent = "copy";
       copyButton.classList.add("copy");
       copyButton.title = "Copy to clipboard";
       code.appendChild(copyButton);
       Polymer.StyleTransformer.element(copyButton, this.is);
-      new ZeroClipboard(copyButton);
+      new Clipboard(copyButton);
       return copyButton;
     }
 
